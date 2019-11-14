@@ -28,9 +28,8 @@ public class BinarySearchAutocomplete implements Autocompletor {
 	 *            weight[i].
 	 * @return a BinarySearchAutocomplete whose myTerms object has myTerms[i] =
 	 *         a Term with word terms[i] and weight weights[i].
-	 * @throws a
-	 *             NullPointerException if either argument passed in is null
-	 */
+	 * @throws // NullPointerException if either argument passed in is null
+	 **/
 	public BinarySearchAutocomplete(String[] terms, double[] weights) {
 		if (terms == null || weights == null) {
 			throw new NullPointerException("One or more arguments null");
@@ -58,7 +57,10 @@ public class BinarySearchAutocomplete implements Autocompletor {
 	public static int firstIndexOf(Term[] a, Term key, Comparator<Term> comparator) {
 		int index = BinarySearchLibrary.firstIndex(Arrays.asList(a), key, comparator);
 		return index;
-	}
+		}
+
+
+
 
 	/**
 	 * The same as firstIndexOf, but instead finding the index of the last Term.
@@ -98,22 +100,37 @@ public class BinarySearchAutocomplete implements Autocompletor {
 	 * @throws NullPointerException if prefix is null
 	 */
 	
+
 	@Override
 	public List<Term> topMatches(String prefix, int k) {
-		Term dummy = new Term(prefix,0);
-		Term.PrefixOrder comp = new Term.PrefixOrder(prefix.length());
-		int first = firstIndexOf(myTerms, dummy, comp);
-		int last = lastIndexOf(myTerms, dummy, comp);
+		if (k < 0)
+			throw new IllegalArgumentException("Illegal value of k: " + k);
+		int first = firstIndexOf(myTerms, new Term(prefix,0), new Term.PrefixOrder(prefix.length()));
+		int last = lastIndexOf(myTerms, new Term(prefix,0), new Term.PrefixOrder(prefix.length()));
+		if (first < 0 || last < 0)
+			return new ArrayList<Term>();
 
-		if (first == -1) {               // prefix not found
-			return new ArrayList<>();
+		PriorityQueue<Term> pq =
+				new PriorityQueue<Term>(Comparator.comparing(Term::getWeight));
+		for (int i = first; i <= last; i ++) {
+			if (!myTerms[i].getWord().startsWith(prefix))
+				continue;
+			if (pq.size() < k) {
+				pq.add(myTerms[i]);
+			} else if (pq.peek().getWeight() < myTerms[i].getWeight()) {
+				pq.remove();
+				pq.add(myTerms[i]);
+			}
 		}
 
-		// write code here
-
-		return null;
-	
+		int numResults = Math.min(k, pq.size());
+		LinkedList<Term> ret = new LinkedList<>();
+		for (int i = 0; i < numResults; i++) {
+			ret.addFirst(pq.remove());
+		}
+		return ret;
 	}
+
 
 	@Override
 	public void initialize(String[] terms, double[] weights) {
