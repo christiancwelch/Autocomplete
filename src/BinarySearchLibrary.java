@@ -41,7 +41,12 @@ public class BinarySearchLibrary {
 	public static <T>
     	int firstIndex(List<T> list, 
 	               	   T target, Comparator<T> comp) {
-		
+
+
+
+		if (list.isEmpty()) {
+			return -1;
+		}
 		int low = -1;
 		int high = list.size()-1;
 		

@@ -103,7 +103,7 @@ public class BinarySearchAutocomplete implements Autocompletor {
 
 	@Override
 	public List<Term> topMatches(String prefix, int k) {
-		if (k < 0)
+		if (k <= 0)
 			throw new IllegalArgumentException("Illegal value of k: " + k);
 		int first = firstIndexOf(myTerms, new Term(prefix,0), new Term.PrefixOrder(prefix.length()));
 		int last = lastIndexOf(myTerms, new Term(prefix,0), new Term.PrefixOrder(prefix.length()));
